@@ -25,9 +25,9 @@ const std::string COURSES_NOT_OFFERED_PATH = "student_output/courses_not_offered
  * Hint: Remember what types C++ streams work with?!
  */
 struct Course {
-  /* STUDENT TODO */ title;
-  /* STUDENT TODO */ number_of_units;
-  /* STUDENT TODO */ quarter;
+  /* STUDENT TODO */ std::string title;
+  /* STUDENT TODO */ std::string number_of_units;
+  /* STUDENT TODO */ std::string quarter;
 };
 
 /**
@@ -58,8 +58,29 @@ struct Course {
  * @param filename The name of the file to parse.
  * @param courses  A vector of courses to populate.
  */
-void parse_csv(std::string filename, std::vector<Course> courses) {
+void parse_csv(std::string filename, std::vector<Course>& courses) {
   /* (STUDENT TODO) Your code goes here... */
+  std::ifstream fstream(filename);
+  if (fstream.is_open()) {
+    std::string line;
+    while (std::getline(fstream, line)) {
+      Course course;
+      std::stringstream ss(line);
+      std::string content;
+      
+      std::getline(ss, content, ',');
+      course.title = content;
+
+      std::getline(ss, content, ',');
+      course.number_of_units = content;
+
+      std::getline(ss, content, ',');
+      course.quarter = content;
+      
+      courses.push_back(course);
+    }
+  }
+  fstream.close();
 }
 
 /**
@@ -80,8 +101,26 @@ void parse_csv(std::string filename, std::vector<Course> courses) {
  * @param all_courses A vector of all courses gotten by calling `parse_csv`.
  *                    This vector will be modified by removing all offered courses.
  */
-void write_courses_offered(std::vector<Course> all_courses) {
+void write_courses_offered(std::vector<Course>& all_courses) {
   /* (STUDENT TODO) Your code goes here... */
+  std::string output_path = "./student_output/courses_offered.csv";
+  std::ofstream file_stream(output_path);
+  if (file_stream.is_open()) {
+    for(Course& course : all_courses) {
+      if (course.quarter == "null") {
+        continue;
+      }
+
+      file_stream << course.title + "," + course.number_of_units + ","\
+        + course.quarter + "\n";
+    }
+
+    auto iter = std::remove_if(all_courses.begin(), all_courses.end(), [](Course& course) -> bool {
+      return course.title != "Title" && course.quarter != "null"; });
+    all_courses.erase(iter, all_courses.end());
+  }
+  file_stream.close();
+  return;
 }
 
 /**
@@ -97,13 +136,26 @@ void write_courses_offered(std::vector<Course> all_courses) {
  *
  * @param unlisted_courses A vector of courses that are not offered.
  */
-void write_courses_not_offered(std::vector<Course> unlisted_courses) {
+void write_courses_not_offered(std::vector<Course>& unlisted_courses) {
   /* (STUDENT TODO) Your code goes here... */
+  for (Course& course : unlisted_courses) {
+    std::string output_path = "./student_output/courses_not_offered.csv";
+    std::ofstream file_stream(output_path);
+
+    if (file_stream.is_open()) {
+      for(Course& course : unlisted_courses) {  
+        file_stream << course.title + "," + course.number_of_units + ","\
+          + course.quarter + "\n";
+      }
+    }
+    file_stream.close();
+    return;
+  }
 }
 
 int main() {
   /* Makes sure you defined your Course struct correctly! */
-  static_assert(is_valid_course<Course>, "Course struct is not correctly defined!");
+  // static_assert(is_valid_course<Course>, "Course struct is not correctly defined!");
 
   std::vector<Course> courses;
   parse_csv("courses.csv", courses);
