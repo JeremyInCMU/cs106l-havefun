@@ -14,7 +14,7 @@
 #include <string>
 #include <unordered_set>
 
-std::string kYourName = "STUDENT TODO"; // Don't forget to change this!
+std::string kYourName = "Lilly Hunter"; // Don't forget to change this!
 
 /**
  * Takes in a file name and returns a set containing all of the applicant names as a set.
@@ -29,6 +29,27 @@ std::string kYourName = "STUDENT TODO"; // Don't forget to change this!
  */
 std::set<std::string> get_applicants(std::string filename) {
   // STUDENT TODO: Implement this function.
+  std::fstream file_stream(filename);
+  std::set<std::string> ret;
+  if (file_stream.is_open()) {
+    std::string line;
+    while (std::getline(file_stream, line)) {
+      ret.insert(line);
+    }
+  }
+  return ret;
+}
+
+bool has_same_initials(std::string name, std::string candidate) {
+  if (name[0] != candidate[0]) {
+    return false;
+  }
+  auto pos_name = name.find(' ');
+  auto pos_candidate = candidate.find(' ');
+  if (name[pos_name + 1] != candidate[pos_candidate + 1]) {
+    return false;
+  }
+  return true;
 }
 
 /**
@@ -41,6 +62,14 @@ std::set<std::string> get_applicants(std::string filename) {
  */
 std::queue<const std::string*> find_matches(std::string name, std::set<std::string>& students) {
   // STUDENT TODO: Implement this function.
+  std::queue<const std::string*> ret;
+  for (auto iter = students.begin(); iter != students.end(); ++iter) {
+    if (has_same_initials(name, *iter)) {
+      ret.push(&*iter);
+    }
+  }
+
+  return ret;
 }
 
 /**
@@ -55,6 +84,18 @@ std::queue<const std::string*> find_matches(std::string name, std::set<std::stri
  */
 std::string get_match(std::queue<const std::string*>& matches) {
   // STUDENT TODO: Implement this function.
+  int cnt = 0;
+  std::string true_love;
+  while (!matches.empty()) {
+    true_love = *matches.front();
+    matches.pop();
+    cnt++;
+
+    if (cnt % 5 == 0) {
+      return true_love;
+    }
+  }
+  return "No MATCHES FOUND.";
 }
 
 /* #### Please don't remove this line! #### */
